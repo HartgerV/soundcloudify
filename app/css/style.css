@@ -1,0 +1,247 @@
+#control {
+    color:#fff;
+    font-size:1.5em;
+    max-width:170px;
+    position:relative;
+    text-align:center;
+    text-shadow:0 0 .2em #1d1d1d;
+    top:50%;
+    transform:translateY(-50%);
+    vertical-align:middle;
+    width:16.66666667%;
+}
+
+#playinfo {
+    background:#313131;
+    bottom:40px;
+    box-shadow:-4px 0 2px 4px #888;
+    color:#fff;
+    left:0;
+    position:absolute;
+    text-align:center;
+    text-shadow:0 0 .2em #1d1d1d;
+    width:100%;
+}
+
+#playinfo img {
+    max-height:170px;
+    width:100%;
+}
+
+#searchPopover {
+    background-color:#313131;
+    border-color:#080808;
+    box-shadow:3px 1px 9px 1px #888;
+    color:#FFF;
+    left:20%;
+    opacity:0.9;
+    padding-left:7px;
+    padding-right:7px;
+    padding-top:4px;
+    position:fixed;
+    text-shadow:0 0 .07em #adadad;
+    top:50px;
+    z-index:10;
+}
+
+#searchPopover a {
+    color:#FFF;
+}
+
+#seekbarwrap {
+    -webkit-align-content:center;
+    align-content:center;
+    float:left;
+    width:60.3333332%;
+}
+
+#shufflebutton {
+    margin-left:5px;
+    color:white;
+}
+
+#seekBase {
+    background-color:silver;
+}
+
+#sidebarqueue {
+    overflow:hidden;
+    padding-top:10px;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    left:15px;
+    transform: translateX(15px);
+}
+
+.sidebarshift {
+    -webkit-transition: 1s ease-in-out;
+    -moz-transition: 1s ease-in-out;
+    -o-transition: 1s ease-in-out;
+    transition: 1s ease-in-out;
+    transform: translateX(0px) !important;
+}
+
+#sortablediv {
+    -moz-box-shadow:#B3B3B3 2px 2px 2px;
+    background:#F5F5F5;
+    border:1px solid #b3b3FF 0 #B3B3B3 2px 2px 2px;
+    box-shadow:#888 2px 2px 2px;
+}
+
+#sortablesidebar {
+    list-style-type:none;
+    padding:0;
+}
+
+#timers {
+    color:#FFF;
+    float:left;
+    font-size:small;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#volumecontrol {
+    -webkit-align-content:center;
+    align-content:center;
+    color:#FFF;
+    display:inline-flex;
+    margin:auto;
+    text-shadow:0 0 .2em #1d1d1d;
+    width:10%;
+}
+
+#volumeslider {
+    margin:auto 5px auto 2px;
+    width:80%;
+}
+
+.albumart {
+    float:right;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.content {
+    left:18.66666%;
+    overflow-y:hidden;
+    padding-bottom:85px;
+    top:55px;
+    width:78.11111%;
+}
+
+.content a {
+    color:#000;
+    text-shadow:0 0 .03em #1d1d1d;
+}
+
+.noselect {
+    -khtml-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    user-select:none;
+}
+
+.placeholder {
+    background-color:orange;
+    height:20px;
+}
+
+.progress-bar {
+    background-color:orange;
+}
+
+.smoothload {
+    opacity: 0;
+    text-align: center;
+    -webkit-transition: opacity 0.25s ease-in;
+    -moz-transition: opacity 0.25s ease-in;
+    -o-transition: opacity 0.25s ease-in;
+    -ms-transition: opacity 0.25s ease-in;
+    transition: opacity 0.25s ease-in;
+}
+.smoothload .showme{
+    opacity: 1;
+}
+
+.sidebar-offcanvas {
+    color:gray;
+    max-width:170px;
+}
+
+.sidebar-offcanvas a {
+    color:#fff;
+    text-shadow:0 0 .2em #1d1d1d;
+}
+
+.searchlist img {
+    width:37px;
+    height:37px;
+}
+
+.track {
+    background:#FFF;
+    box-shadow:3px 1px 9px 1px #888;
+    color:#000;
+    list-style-type:none;
+    text-shadow:0 0 .1em #888;
+}
+
+.tracklist {
+    color:#fff;
+    padding:0;
+    text-shadow:0 0 .2em #1d1d1d;
+}
+
+.ui-draggable-dragging {
+    z-index:1000;
+}
+
+.ui-slider-tick {
+    background-color:#aaa;
+    height:8px;
+    position:absolute;
+    top:16px;
+    width:2px;
+}
+
+.userdiv {
+    width:100%;
+}
+
+.userdiv .userblock,#avatar {
+    float:left;
+}
+
+.volume {
+    border-color:transparent transparent #fff;
+    border-style:solid;
+    border-width:0 0 57px 57px;
+    float:right;
+    height:0;
+    width:0;
+}
+
+.visualizerbox {
+    -webkit-transition:0.6s;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -moz-box-shadow:#B3B3B3 1px 1px 1px;
+    -webkit-appearance:none;
+    -webkit-box-shadow:#B3B3B3 1px 1px 1px;
+    background-color:#666;
+    box-shadow:#888 1px 1px 1px;
+    height:10px;
+    opacity:0.5;
+    width:10px;
+}
+
+input[type=range] {
+    -webkit-appearance:none;
+    background-color:silver;
+    height:10px;
+}

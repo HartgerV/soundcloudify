@@ -1,0 +1,15 @@
+<h1>History</h1>
+<div class="well" id=""  >
+    <table  class="searchlist table table-striped sortable">
+        <tbody>
+        <tr ng-animate=" 'animate' " ng-repeat="track in history.slice().reverse() track by $index">
+            <td><span ng-click="addToQueue(track)" class="glyphicon glyphicon-plus handle"></span></td>
+            <td><img src='{{track.artwork_url.replace("large","badge")}}'></td>
+            <td>{{track.title}}</td><td><a href="#/user/{{track.user.id}}">{{track.user.username}}</a></td>
+            <td>{{msToTime(track.duration)}}</td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+

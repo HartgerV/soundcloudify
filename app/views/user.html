@@ -1,0 +1,23 @@
+<div ng-controller="UserCtrl">
+<ul style="margin-left:auto;margin-right:auto" class="list-unstyled">
+    <li><div ng-if="user.avatar_url != 'https://a1.sndcdn.com/images/default_avatar_large.png'" style="margin-left:auto;margin-right:auto;width:600px;height:300px">
+        <img fade-in id="avatar" ng-class="{{avatarclass}}" src="{{::user.avatar_url.replace('large','t300x300')}}">
+        <img fade-in ng-repeat="track in ::usertracks | unique : 'artwork_url' | limitTo:9" class="albumart" src="{{track.artwork_url}}">
+    </div></li>
+    <div class="well" style="margin-top:10px;">
+    <li><h2>{{user.username}} </h2></li>
+    <li><i ng-if="user.full_name != ''">({{user.full_name}})</i></li>
+    <li><p>{{user.description}}<p></li>
+        <li ng-click="scToSimilar(user)">TEST</li>
+    <li><h3>Tracks</h3></li>
+    <table class="table table-striped" >
+        <tr ng-repeat="track in ::usertracks" data-drag="true" data-jqyoui-options="{revert: 'invalid', helper: 'clone', appendTo: 'body'}" ng-model="usertracks" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep'}">
+            <td><span ng-click="addToQueue(track)" class="glyphicon glyphicon-plus"></span></td>
+            <td><img  src="{{track.artwork_url.replace('large','tiny')}}"></td><td>{{track.title}}</td>
+            <td>{{msToTime(track.duration)}}</td>
+            <td>{{track.playback_count}}</td>
+        </tr>
+    </table>
+    </div>
+    </ul>
+</div>

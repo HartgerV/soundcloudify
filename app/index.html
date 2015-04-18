@@ -6,36 +6,167 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>My AngularJS App</title>
-  <meta name="description" content="">
+  <title>Soundcloudify</title>
+  <meta name="description" content="A spotify-like soundcloud player">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--CSS-->
   <link rel="stylesheet" href="bower_components/html5-boilerplate/css/normalize.css">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/css/main.css">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <!--JS-->
   <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
+  <script src="http://connect.soundcloud.com/sdk.js"></script>
+  <script>
+    SC.initialize({
+      client_id: 'b4fe049a798114e6ab42ba20a2738ac9'
+    });
+    $(document).keypress(function(e) {
+      if (e.keyCode == 0 || e.keyCode == 32) {
+        $scope.togglePlayStatus();
+        console.log("spacebar pressed")
+      }
+    });
+  </script>
 </head>
-<body>
-  <ul class="menu">
-    <li><a href="#/view1">view1</a></li>
-    <li><a href="#/view2">view2</a></li>
-  </ul>
+<body ng-app="myApp" ng-controller="SearchCtrl" >
+<!-- NAVBAR TOP -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand pull-left" href="#">Soundcloudify</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <form class="navbar-form navbar-left">
+        <div class="form-group has-feedback">
+          <input id="searchfield" type="text" ng-model="query" ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" class="form-control" typeahead="tracks.title for tracks.tile in searchTrack($viewValue) | limitTo:8" about="" >
 
-  <!--[if lt IE 7]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-  <![endif]-->
+          <i class="glyphicon glyphicon-search form-control-feedback"></i>
+        </div>
 
-  <div ng-view></div>
+      </form>
+    </div><!--/.navbar-collapse -->
+  </div>
+</nav>
+<!-- SearchPopover -->
+<div ng-if="showsearch==1" id="searchPopover">
+  <table class="table sortable" style="margin:3px">
+    <tr ng-animate=" 'animate' " ng-repeat="track in tracks | limitTo:8" data-drag="true" data-jqyoui-options="{revert: 'invalid', helper: 'clone', appendTo: 'body'}" ng-model="tracks" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep'}">
+      <td><span ng-click="addToQueue(track)" class="glyphicon glyphicon-plus handle"></span></td>
+      <td><img src='{{track.artwork_url.replace("large","tiny")}}'></td>
+      <td ng-bind="track.title"></td><td><a href="#/user/{{track.user.id}}" ng-bind="track.user.username"></a></td>
+    </tr>
+  </table>
+</div>
+<!-- END NAVBAR TOP -->
 
-  <div>Angular seed app: v<span app-version></span></div>
+<!-- NAVBAR RIGHT -->
+<div> <!--Wrapper-->
+<div class="column col-sm-2 col-xs-1 sidebar-offcanvas" style="color:gray;height:100%;background:#aaa; padding-top:50px;padding-bottom:81px;position:fixed;min-width:60px;" id="sidebar">
 
-  <!-- In production use:
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
-  -->
+    <ul class="nav">
+      <li><a href="#" data-toggle="offcanvas" class="visible-xs text-center"><i class="glyphicon glyphicon-chevron-right"></i></a></li>
+    </ul>
+
+    <ul class="nav fixed hidden-xs" id="lg-menu">
+      <li class="active"><a href="#featured" onclick="loadContent('featured');"><i class="glyphicon glyphicon-list-alt"></i> Featured</a></li>
+      <li><a href="#/playing"><i class="glyphicon glyphicon-music"></i> Now playing</a></li>
+      <li><a href="#/history" ><i class="glyphicon glyphicon-paperclip"></i> History</a></li>
+      <li><a href="#/visualize" ><i class="glyphicon glyphicon-stats"></i> Visualizer</a></li>
+      <li><a href="#" ><i class="glyphicon glyphicon-cloud"></i> Rooms</a></li>
+      <li><a href="#/autodj" ><i class="glyphicon glyphicon-headphones"></i> Auto-dj</a></li>
+    </ul>
+    <div class="hidden-xs" id="sidebarqueue" data-drop="true" ng-model='queue' jqyoui-droppable="{multiple:true, stack:true}">
+      <div id="queuedropzone">
+        <a href="#/queue"><span class="glyphicon glyphicon-list"></span> Queue</a>
+      </div>
+      <div id="sortablediv">
+        <table class="table"   ng-animate=" 'animate' " >
+          <tbody ui-sortable ng-model="queue">
+          <tr ng-repeat="track in queue track by $index"><td><img src='{{track.artwork_url.replace("large","tiny")}}'></td><td>{{track.title}}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <ul class="list-unstyled hidden-xs"  id="playinfo">
+      <li ng-if="playing != null">
+        <img src="{{playing.artwork_url.replace('large','t300x300')}}">
+        <marquee>{{playing.title}}</marquee>
+        <i class="user"><a href="#/user/{{playing.user.id}}">{{playing.user.username}}</a></i>
+
+      </li>
+    </ul>
+
+    <!-- tiny only nav-->
+    <ul class="nav visible-xs" id="xs-menu">
+      <li><a href="#featured" class="text-center"><i class="glyphicon glyphicon-list-alt"></i></a></li>
+      <li><a href="#queue" class="text-center"><i class="glyphicon glyphicon-list"></i></a></li>
+      <li><a href="#" class="text-center"><i class="glyphicon glyphicon-paperclip"></i></a></li>
+      <li><a href="#" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+    </ul>
+
+  </div>
+  <!-- !!!VIEW!!!-->
+  <div ng-view ng-animate="{enter: 'view-enter', leave: 'view-leave'}" class="content view-container">
+
+  </div>
+</div>
+ <!-- /container -->
+<!-- END MIDDLE -->
+
+<!-- FOOTERBAR -->
+<div class="navbar navbar-brand navbar-fixed-bottom hidden-xs" style="background:#313131;padding-left:0px;">
+  <div class="pull-left" id="control" >
+    <span ng-click="playPrevious()" class="glyphicon glyphicon-fast-backward"></span>
+    <span id="pauseunpause" class="glyphicon glyphicon-play"></span>
+    <span  ng-click="playNext()" class="glyphicon glyphicon-fast-forward"></span>
+  </div>
+  <div>
+    <div class="container" id="seekbarwrap">
+      <div class="progress progress-warning active" id="seekBase">
+        <div class="progress-bar" style="width :{{progress.width}}" id="seekLoad" style="background-color:orange"></div>
+        <img src="{{playing.waveform_url}}" style="width:100%;height:100%;transform:translateY(-21px);">
+      </div>
+
+    </div>
+    <div style="width:10%;float:left;min-width:95px">
+      <span ng-if="playing != null" id="timers">{{msToTime(sound.position)}} / {{msToTime(sound.durationEstimate)}}</span>
+      <span id="shufflebutton" class="glyphicon glyphicon-retweet" ng-click="toggleShuffle()"></span>
+    </div>
+    <div class="pull-right" id="volumecontrol">
+      <span class="glyphicon glyphicon-volume-down"></span>
+      <input id="volumeslider" min="0" max="100"  step="1" type="range" ng-model="volume" />
+      <span class="glyphicon glyphicon-volume-up"></span>
+    </div>
+
+  </div>
+</div>
+<!-- END FOOTERBAR -->
+
+  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+
+  <!--<script src="bower_components/bootstrap/js/popover.js"></script>-->
+  <!--<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>-->
   <script src="bower_components/angular/angular.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-touch.min.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="bower_components/angular-animate/angular-animate.js"></script>
+  <script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
+  <script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
+  <script src="bower_components/angular-ui-sortable/sortable.js"></script>
+  <script src="bower_components/angular-filter/dist/angular-filter.js"></script>
+  <script src="bower_components/angular-dragdrop/src/angular-dragdrop.js"></script>
+
   <script src="app.js"></script>
-  <script src="view1/view1.js"></script>
-  <script src="view2/view2.js"></script>
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>
