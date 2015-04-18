@@ -40,6 +40,9 @@ myApp.config(['$locationProvider','$routeProvider', function($locationProvider,$
       when('/visualize', {
           templateUrl: 'views/visualizer.html'
       }).
+      when('/control', {
+            templateUrl: 'views/control.html'
+      }).
       otherwise({redirectTo: '/'});
 }]);
 
