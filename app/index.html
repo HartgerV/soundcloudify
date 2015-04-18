@@ -44,7 +44,7 @@
       </button>
       <a class="navbar-brand pull-left" href="#">Soundcloudify</a>
     </div>
-    <div id="navbar" class="navbar-collapse collapse">
+    <div id="navbar" class="">
       <form class="navbar-form navbar-left">
         <div class="form-group has-feedback">
           <input id="searchfield" type="text" ng-model="query" ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" class="form-control" typeahead="tracks.title for tracks.tile in searchTrack($viewValue) | limitTo:8" about="" >
@@ -77,7 +77,7 @@
     </ul>
 
     <ul class="nav fixed hidden-xs" id="lg-menu">
-      <li class="active"><a href="#featured" onclick="loadContent('featured');"><i class="glyphicon glyphicon-list-alt"></i> Featured</a></li>
+      <li class="active"><a href="#featured"><i class="glyphicon glyphicon-list-alt"></i> Featured</a></li>
       <li><a href="#/playing"><i class="glyphicon glyphicon-music"></i> Now playing</a></li>
       <li><a href="#/history" ><i class="glyphicon glyphicon-paperclip"></i> History</a></li>
       <li><a href="#/visualize" ><i class="glyphicon glyphicon-stats"></i> Visualizer</a></li>
@@ -107,10 +107,12 @@
 
     <!-- tiny only nav-->
     <ul class="nav visible-xs" id="xs-menu">
-      <li><a href="#featured" class="text-center"><i class="glyphicon glyphicon-list-alt"></i></a></li>
-      <li><a href="#queue" class="text-center"><i class="glyphicon glyphicon-list"></i></a></li>
-      <li><a href="#" class="text-center"><i class="glyphicon glyphicon-paperclip"></i></a></li>
-      <li><a href="#" class="text-center"><i class="glyphicon glyphicon-refresh"></i></a></li>
+      <li class="active"><a href="#featured"><i class="glyphicon glyphicon-list-alt"></i></a></li>
+      <li><a href="#/playing"><i class="glyphicon glyphicon-music"></i></a></li>
+      <li><a href="#/history" ><i class="glyphicon glyphicon-paperclip"></i></a></li>
+      <li><a href="#/visualize" ><i class="glyphicon glyphicon-stats"></i></a></li>
+      <li><a href="#" ><i class="glyphicon glyphicon-cloud"></i></a></li>
+      <li><a href="#/autodj" ><i class="glyphicon glyphicon-headphones"></i></a></li>
     </ul>
 
   </div>
@@ -123,7 +125,7 @@
 <!-- END MIDDLE -->
 
 <!-- FOOTERBAR -->
-<div class="navbar navbar-brand navbar-fixed-bottom hidden-xs" style="background:#313131;padding-left:0px;">
+<div class="navbar navbar-brand navbar-fixed-bottom" style="background:#313131;padding-left:0px;">
   <div class="pull-left" id="control" >
     <span ng-click="playPrevious()" class="glyphicon glyphicon-fast-backward"></span>
     <span id="pauseunpause" class="glyphicon glyphicon-play"></span>
