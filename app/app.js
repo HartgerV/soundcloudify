@@ -258,6 +258,17 @@ myApp.controller('SearchCtrl', function($http,$scope) {
   };
   $scope.togglePlaystatus=togglePlaystatus;
 
+  $scope.pauseUnpause =function pauseUnpause() {
+    if($scope.sound) {
+      $scope.sound.togglePause();
+      $scope.togglePlaystatus();
+      $('#control').find('#pauseunpause').toggleClass("glyphicon-pause");
+      $('#control').find('#pauseunpause').toggleClass("glyphicon-play");
+    }
+    else {
+      console.log("no track selected!");
+    }
+  };
   $('#control').find('#pauseunpause').click(function() {
     if($scope.sound) {
       $scope.sound.togglePause();
