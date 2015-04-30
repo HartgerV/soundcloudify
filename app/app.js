@@ -15,6 +15,9 @@ myApp.config(['$locationProvider','$routeProvider', function($locationProvider,$
         templateUrl: 'views/user.html',
         controller: "UserCtrl"
       }).
+      when('/featured',{
+          templateUrl: 'views/featured.html'
+      }).
       when('/search/:query',{
         templateUrl: 'views/search.html',
         controller: "SrchCtrl"
@@ -22,8 +25,8 @@ myApp.config(['$locationProvider','$routeProvider', function($locationProvider,$
       when('/yolo',   {
         template: 'yolo'
       }).
-      when('/slider', {
-        templateUrl: 'views/slider.html'
+      when('/', {
+        templateUrl: 'views/featured.html'
       }).
       when('/queue',  {
         templateUrl: 'views/queue.html'
@@ -43,7 +46,7 @@ myApp.config(['$locationProvider','$routeProvider', function($locationProvider,$
       when('/control', {
             templateUrl: 'views/control.html'
       }).
-      otherwise({redirectTo: '/'});
+      otherwise({redirectTo: '/featured'});
 }]);
 
 myApp.directive('fadeIn', function($timeout){
@@ -234,12 +237,17 @@ myApp.controller('SearchCtrl', function($http,$scope) {
     //var currentList = $scope.queue;
     //var newList = currentList.concat(track);
     //$scope.queue = newList;
-    $scope.queue.push(track);
-    console.log(track);
-    console.log($scope.queue);
+    if($scope.playing == null) {
+      $scope.play(track.id);
+    }
+    else {
+      $scope.queue.push(track);
+      console.log(track);
+      console.log($scope.queue);
 
-    if($scope.queue.length>0 && !($('#sidebarqueue').hasClass('sidebarshift'))){
-      $('#sidebarqueue').addClass('sidebarshift');
+      if ($scope.queue.length > 0 && !($('#sidebarqueue').hasClass('sidebarshift'))) {
+        $('#sidebarqueue').addClass('sidebarshift');
+      }
     }
   }
   $scope.addToQueue = addToQueue;

@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Soundcloudify</title>
+  <title>Every - A music player for every occasion</title>
   <meta name="description" content="A spotify-like soundcloud player">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!--CSS-->
@@ -42,17 +42,18 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand pull-left" href="#">Soundcloudify</a>
+      <a class="navbar-brand pull-left" href="#/">Every</a>
     </div>
     <div id="navbar" class="">
       <form class="navbar-form navbar-left">
         <div class="form-group has-feedback">
           <input id="searchfield" type="text" ng-model="query" ng-model-options="{ updateOn: 'default blur', debounce: {'default': 500, 'blur': 0} }" class="form-control" typeahead="tracks.title for tracks.tile in searchTrack($viewValue) | limitTo:8" about="" >
-
           <i class="glyphicon glyphicon-search form-control-feedback"></i>
         </div>
 
       </form>
+      <img class="pull-right" style="margin-top:7px;margin-bottom:7px;" src="https://developers.soundcloud.com/assets/powered_by_white-7ee4327cfbe5d678897edf6b6c5dd30f.png">
+
     </div><!--/.navbar-collapse -->
   </div>
 </nav>
