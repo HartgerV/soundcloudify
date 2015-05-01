@@ -23,12 +23,14 @@
     SC.initialize({
       client_id: 'b4fe049a798114e6ab42ba20a2738ac9'
     });
-    $(document).keypress(function(e) {
-      if (e.keyCode == 0 || e.keyCode == 32) {
-        $scope.togglePlayStatus();
-        console.log("spacebar pressed")
-      }
-    });
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-62504890-1', 'auto');
+    ga('send', 'pageview');
+
   </script>
 </head>
 <body ng-app="myApp" ng-controller="SearchCtrl" >

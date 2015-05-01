@@ -165,32 +165,37 @@ myApp.controller('SearchCtrl', function($http,$scope) {
   };
   $scope.play= function(id) {
     if($scope.sound) {$scope.sound.stop();} //if(isset(sound)?stop
-    SC.stream(id, {usePeakData: true,onfinish: function(){ console.log('track finished');$scope.playNext();}}, function(song){
-      var tick = 0;
-      console.log("playing "&song);
-      $scope.sound = song;
-      $scope.sound.play({
-        whileplaying: function(){
-          $scope.$apply(function(){
-            $scope.browser=window.innerHeight;
-            $scope.progress = { 'width' : (($scope.sound.position / $scope.sound.duration) * 100)+'%'};
-          });
-          //console.log($scope.sound);
-        }
-      });
-      if($scope.playstatus!="playing"){
-          $scope.sound.pause();
+    SC.stream(id, {usePeakData: true,onfinish: function(){ console.log('track finished');$scope.playNext();}}, function(song,error){
+      if(error) {
+        console.log(error);
+        $scope.playNext();
       }
-      $scope.$watch("volume", function(newValue,oldValue) {
-        $scope.sound.setVolume(newValue);
-        console.log(newValue);
-      });
-      $("#seekBase").click(function (e) {
-        var x = e.pageX - $(this).offset().left;
-        var width = $(this).width();
-        var duration = $scope.sound.durationEstimate;
-        $scope.sound.setPosition((x / width) * duration);
-      });
+      else {
+        console.log("playing " & song);
+        $scope.sound = song;
+        $scope.sound.play({
+          whileplaying: function () {
+            $scope.$apply(function () {
+              $scope.browser = window.innerHeight;
+              $scope.progress = {'width': (($scope.sound.position / $scope.sound.duration) * 100) + '%'};
+            });
+            //console.log($scope.sound);
+          }
+        });
+        if ($scope.playstatus != "playing") {
+          $scope.sound.pause();
+        }
+        $scope.$watch("volume", function (newValue, oldValue) {
+          $scope.sound.setVolume(newValue);
+          console.log(newValue);
+        });
+        $("#seekBase").click(function (e) {
+          var x = e.pageX - $(this).offset().left;
+          var width = $(this).width();
+          var duration = $scope.sound.durationEstimate;
+          $scope.sound.setPosition((x / width) * duration);
+        });
+      }
     });
     SC.get('/tracks/'+id, function(track) {
       $scope.playing = track;
