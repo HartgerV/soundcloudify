@@ -571,3 +571,9 @@ myApp.controller('AutoDJCtrl', function($scope) {
   console.log("AutoDJCtrl triggered");
   $scope.number = 3;
 });
+
+myApp.filter("sanitize", ['$sce', function($sce) {
+  return function(htmlCode){
+    return $sce.trustAsHtml(htmlCode);
+  }
+}]);
