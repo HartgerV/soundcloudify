@@ -1,0 +1,29 @@
+<div>
+    <div style="margin-bottom:10px">
+        <div style="width:80%;float:right; padding-left:5%;">
+            <h1>{{trackpage.title}}</h1>
+            <a href="#/user/{{trackpage.user.id}}"><h2>{{trackpage.user.username}}</h2></a>
+            <!--<img style="background-color:orange;height:100px;" src="{{trackpage.waveform_url}}">-->
+        </div>
+        <div style="width:20%;">
+            <img style="width:100%;height:100%" src="{{trackpage.artwork_url.replace('large','t300x300')}}">
+        </div>
+    </div>
+    <div class="well">
+        <h3 ng-click="play(trackpage.id)">Play now</h3>
+        <h3 ng-click="addToQueue(trackpage)">Add to Queue</h3>
+        <h3>Description:</h3>
+        <p ng-bind-html="trackpage.description | sanitize"></p>
+    </div>
+    <table class="table">
+        <tr><td>Duration:</td><td>{{msToTime(trackpage.duration)}}</td></tr>
+        <tr><td>Plays:</td><td>{{trackpage.playback_count}}</td></tr>
+        <tr><td>BPM:</td><td>{{trackpage.bpm}}</td></tr>
+        <tr><td>Key:</td><td>{{trackpage.key_signature}}</td></tr>
+        <tr><td>Genre:</td><td>{{trackpage.genre}}</td></tr>
+        <tr><td>Tags:</td><td>{{trackpage.tag_list}}</td></tr>
+        <tr ng-if="trackpage.downloadable"><td>Download link:</td><td><a href="{{trackpage.download_url}}">{{trackpage.download_url}}</a></td></tr>
+        <tr><td>Soundcloud url:</td><td><a href="{{trackpage.permalink_url}}">{{trackpage.permalink_url}}</a></td></tr>
+
+    </table>
+</div>

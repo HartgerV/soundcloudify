@@ -1,11 +1,13 @@
-<div class="phone-listing view-frame">
+<div context-menu="menuOptions" class="phone-listing view-frame">
     <h1>Search: '<i>{{routeParams.query}}</i>'</h1>
     <table class="searchlist table table-striped sortable">
     <tr ng-animate=" 'animate' " ng-repeat="track in tracks" data-drag="true" data-jqyoui-options="{revert: 'invalid', helper: 'clone', appendTo: 'body'}" ng-model="tracks" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep'}">
             <td><span ng-click="addToQueue(track)" class="glyphicon glyphicon-plus handle"></span></td>
             <td><img src='{{track.artwork_url.replace("large","badge")}}'></td>
-            <td>{{track.title}}</td><td><a href="#/user/{{track.user.id}}">{{track.user.username}}</a></td>
+            <td><a ng-dbclick="play(track.id)" href="#/track/{{track.id}}">{{track.title}}</a></td><td><a href="#/user/{{track.user.id}}">{{track.user.username}}</a></td>
             <td>{{msToTime(track.duration)}}</td>
     </tr>
     </table>
+
+
 </div>
