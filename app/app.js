@@ -190,6 +190,10 @@ myApp.controller('SearchCtrl', function($http,$scope) {
         if ($scope.playstatus != "playing") {
           $scope.sound.pause();
         }
+        else {
+            console.log("reset");
+            $scope.sound.setPosition(0);
+        }
         $scope.$watch("volume", function (newValue, oldValue) {
           $scope.sound.setVolume(newValue);
           console.log(newValue);
