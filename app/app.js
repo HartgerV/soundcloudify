@@ -175,7 +175,8 @@ myApp.controller('SearchCtrl', function($http,$scope) {
         $scope.playNext();
       }
       else {
-        console.log("playing " & song);
+        console.log("playing track:");
+        console.log(song);
         $scope.sound = song;
         $scope.sound.play({
           whileplaying: function () {
