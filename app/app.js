@@ -279,8 +279,8 @@ myApp.controller('SearchCtrl', function($http,$scope) {
     if($scope.sound) {
       $scope.sound.togglePause();
       $scope.togglePlaystatus();
-      $('#control').find('#pauseunpause').toggleClass("glyphicon-pause");
-      $('#control').find('#pauseunpause').toggleClass("glyphicon-play");
+      $('.control').find('.pauseunpause').toggleClass("glyphicon-pause");
+      $('.control').find('.pauseunpause').toggleClass("glyphicon-play");
     }
     else {
       console.log("no track selected!");

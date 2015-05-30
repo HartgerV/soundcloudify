@@ -121,17 +121,22 @@
 <!-- END MIDDLE -->
 
 <!-- FOOTERBAR -->
-<div class="navbar navbar-brand navbar-fixed-bottom" style="background:#313131;padding-left:0px;">
-  <div class="pull-left" style="min-width:100px" id="control" >
+<div class="navbar  navbar-fixed-bottom" style="background:#313131;height:50px;padding:15px;font-size:20px;padding-left:0px;">
+  <div class="pull-left hidden-xs control" style="min-width:100px" id="control" >
     <span ng-click="playPrevious()" class="glyphicon glyphicon-fast-backward"></span>
-    <span id="pauseunpause" class="glyphicon glyphicon-play"></span>
+    <span id="pauseunpause" class="glyphicon glyphicon-play pauseunpause"></span>
     <span  ng-click="playNext()" class="glyphicon glyphicon-fast-forward"></span>
+  </div>
+  <div class="pull-left visible-xs control" style="font-size:1.0em; overflow: hidden; white-space: nowrap;" id="control" >
+        <span ng-click="playPrevious()" class="glyphicon glyphicon-fast-backward"></span>
+        <span id="pauseunpause" ng-click="pauseUnpause()" class="glyphicon glyphicon-play pauseunpause"></span>
+        <span  ng-click="playNext()" class="glyphicon glyphicon-fast-forward"></span>
   </div>
   <div>
     <div class="container" id="seekbarwrap">
       <div class="progress progress-warning active" id="seekBase">
         <div class="progress-bar" style="width :{{progress.width}}" id="seekLoad" style="background-color:orange"></div>
-        <img src="{{playing.waveform_url}}" style="width:100%;height:100%;transform:translateY(-21px);">
+        <img src="{{playing.waveform_url}}" style="width:100%;height:100%;transform:translateY(-26px);">
       </div>
 
     </div>
