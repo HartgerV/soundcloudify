@@ -169,9 +169,14 @@ myApp.controller('SearchCtrl', function($http,$scope) {
   };
   $scope.play= function(id) {
     if($scope.sound) {$scope.sound.stop();} //if(isset(sound)?stop
-    SC.stream(id, {usePeakData: true,
-                   onload: function(){if(/(android)/i.test(navigator.userAgent)){$scope.sound.setPosition(0);$scope.pauseUnpause();$scope.pauseUnpause();console.log("android log reset")}},
-                   onfinish: function(){ $scope.sound.setPosition(0);console.log('track finished');$scope.playNext();}},
+    SC.stream(id, {
+        usePeakData: true,
+        //Add eventlistener for 500ms before end off track, for playing next track without calling onfinish event (which bugs out on android)
+        onload: function () {
+            this.onPosition(this.duration-500,function(){ $scope.sound.setPosition(0);console.log('track finished');$scope.playNext();});
+        },
+        onfinish:function(){ $scope.sound.setPosition(0);console.log('track finished');$scope.playNext();}
+    },
                    function(song,error){
       if(error) {
         console.log(error);
