@@ -169,7 +169,10 @@ myApp.controller('SearchCtrl', function($http,$scope) {
   };
   $scope.play= function(id) {
     if($scope.sound) {$scope.sound.stop();} //if(isset(sound)?stop
-    SC.stream(id, {usePeakData: true,onfinish: function(){ $scope.sound.setPosition(0);console.log('track finished');$scope.playNext();}}, function(song,error){
+    SC.stream(id, {usePeakData: true,
+                   onload: function(){if(/(android)/i.test(navigator.userAgent)){$scope.sound.setPosition(0);console.log("android log reset")}},
+                   onfinish: function(){ $scope.sound.setPosition(0);console.log('track finished');$scope.playNext();}},
+                   function(song,error){
       if(error) {
         console.log(error);
         $scope.playNext();
