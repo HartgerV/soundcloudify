@@ -173,7 +173,19 @@ myApp.controller('SearchCtrl', function($http,$scope) {
         usePeakData: true,
         //Add eventlistener for 500ms before end off track, for playing next track without calling onfinish event (which bugs out on android)
         onload: function () {
-            this.onPosition(this.duration-500,function(){console.log('track finished onjustbeforefinish event');$scope.playNext();});
+            if(/(android)/i.test(navigator.userAgent)){
+                console.log("android nextplay");
+                this.onPosition(this.duration-500,function(){
+                    console.log('track finished onjustbeforefinish event');
+                    angular.element('#androidPlayNext').trigger('click');
+                });
+            }
+            else {
+                this.onPosition(this.duration - 500, function () {
+                    console.log('track finished onjustbeforefinish event');
+                    $scope.playNext();
+                });
+            }
         },
         //onfinish:function(){ $scope.sound.setPosition(0);console.log('track finished onfinish event');$scope.playNext();}
     },
