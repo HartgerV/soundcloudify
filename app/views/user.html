@@ -13,6 +13,7 @@
     <table class="table table-striped" >
         <tr ng-repeat="track in ::usertracks" data-drag="true" data-jqyoui-options="{revert: 'invalid', helper: 'clone', appendTo: 'body'}" ng-model="usertracks" jqyoui-draggable="{index: {{$index}}, animate: true, placeholder: 'keep'}">
             <td><span ng-click="addToQueue(track)" class="glyphicon glyphicon-plus"></span></td>
+            <td><span ng-click="addToRoom(track)" class="glyphicon glyphicon-cloud"></span></td>
             <td><img  src="{{track.artwork_url.replace('large','tiny')}}"></td><td>{{track.title}}</td>
             <td>{{msToTime(track.duration)}}</td>
             <td>{{track.playback_count}}</td>

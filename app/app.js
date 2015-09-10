@@ -7,7 +7,8 @@ var myApp = angular.module('myApp', [
   'mgcrea.ngStrap',
   'ui.sortable',
   'angular.filter',
-  'ngDragDrop'
+  'ngDragDrop',
+  'btford.socket-io'
 ]);
 
 myApp.config(['$locationProvider','$routeProvider', function($locationProvider,$routeProvider) {
@@ -26,6 +27,14 @@ myApp.config(['$locationProvider','$routeProvider', function($locationProvider,$
         templateUrl: 'views/search.html',
         controller: "SrchCtrl"
       }).
+      when('/rooms',{
+              templateUrl: 'views/rooms.html',
+              controller: 'RoomsCtrl'
+      }).
+          when('/room/:id', {
+             templateUrl: 'views/room.html',
+             controller: 'RoomCtrl'
+          }).
       when('/yolo',   {
         template: 'yolo'
       }).
@@ -65,45 +74,22 @@ myApp.directive('fadeIn', function($timeout){
   }
 });
 
-myApp.directive("slider", function() {
-  return {
-    restrict: 'A',
-    scope: {
-      config: "=config",
-      price: "=model"
-    },
-    link: function(scope, elem, attrs) {
-      var setModel = function(value) {
-        scope.model = value;
-      }
-
-      $(elem).slider({
-        range: false,
-        min: scope.config.min,
-        max: scope.config.max,
-        step: scope.config.step,
-        slide: function(event, ui) {
-          scope.$apply(function() {
-            scope.price = ui.value;
-          });
-        }
-      });
-    }
-  }
-});
-
-myApp.controller('SrchCtrl', function($scope, $routeParams) {
-  $scope.routeParams = $routeParams;
-  SC.get('/tracks', {q: $scope.routeParams.query, sharing: 'public'}, function (tracks) {
-    $scope.$apply(function () {
-      $scope.tracks = tracks;
-    });
-    console.log("Query " + $routeParams.query + " completed");
+myApp.controller('SearchCtrl', function($http,$scope,$rootScope,Room,Queue,socket) {
+  $rootScope.$on('playlist:update', function(){
+     console.log("playlist updated");
+     var playlist = Room.getPlaylist();
+     Queue.splice(0,Queue.length);
+     for(var i=0; i<playlist.length; i++){
+         addToQueue(playlist[i]);
+     }
   });
-});
-
-myApp.controller('SearchCtrl', function($http,$scope) {
-  $scope.tracklist = {
+    $scope.$on('pingback', function(){
+      console.log("pingback");
+  });
+  $scope.ping = function() {
+      socket.emit('ping');
+  };
+    $scope.tracklist = {
     placeholder: "placeholder",
     connectWith: ".sortable",
     items: "li",
@@ -113,9 +99,9 @@ myApp.controller('SearchCtrl', function($http,$scope) {
   };
   $scope.sound="";
   $scope.playstatus="";
-  $scope.queue= [{}];
+  $scope.queue=Queue;
   $scope.history= [{}];
-  $scope.queue.shift();
+  Queue.shift();
   $scope.progress="";
   $scope.volume=80;
   $scope.showsearch=0;
@@ -141,6 +127,7 @@ myApp.controller('SearchCtrl', function($http,$scope) {
     console.log("Queue changed!");
   });
 
+
   $scope.$watch("query", function(newValue, oldValue) {
     if(newValue.length > 0) {
       SC.get('/tracks', {q: newValue, sharing: 'public'}, function (tracks) {
@@ -148,7 +135,7 @@ myApp.controller('SearchCtrl', function($http,$scope) {
           $scope.$apply(function () {
             $scope.tracks = tracks;
             $scope.showsearch=1;
-            //$scope.queue = tracks;
+            //Queue = tracks;
           });
           console.log("Query " + newValue + " completed");
           console.log($scope.tracks);
@@ -255,31 +242,33 @@ myApp.controller('SearchCtrl', function($http,$scope) {
     }
     var toplay;
     if($scope.shuffle==1){
-      var rand = Math.floor(Math.random()*$scope.queue.length);
-      toplay = $scope.queue[rand];
-      $scope.queue.splice(rand,1);
+      var rand = Math.floor(Math.random()*Queue.length);
+      toplay = Queue[rand];
+      Queue.splice(rand,1);
       $scope.play(toplay.id);
     }
     else {
-      toplay = $scope.queue.shift();
+      toplay = Queue.shift();
       $scope.play(toplay.id);
     }
   };
   //$scope.playNext= playNext;
-
+  $scope.addToRoom = function(track) {
+      $http.put('http://localhost:8080/api/rooms/' + Room.getRoom(), {track: track});
+  }
   function addToQueue(track) {
-    //var currentList = $scope.queue;
+    //var currentList = Queue;
     //var newList = currentList.concat(track);
-    //$scope.queue = newList;
+    //Queue = newList;
     if($scope.playing == null) {
       $scope.play(track.id);
     }
     else {
-      $scope.queue.push(track);
+      Queue.push(track);
       console.log(track);
-      console.log($scope.queue);
+      console.log(Queue);
 
-      if ($scope.queue.length > 0 && !($('#sidebarqueue').hasClass('sidebarshift'))) {
+      if (Queue.length > 0 && !($('#sidebarqueue').hasClass('sidebarshift'))) {
         $('#sidebarqueue').addClass('sidebarshift');
       }
     }
@@ -287,7 +276,7 @@ myApp.controller('SearchCtrl', function($http,$scope) {
   $scope.addToQueue = addToQueue;
 
   $scope.removeQueueTrack = function removeQueueTrack(index) {
-    $scope.queue.splice(index,1);
+    Queue.splice(index,1);
   };
 
   function togglePlaystatus(event) {
@@ -349,117 +338,7 @@ myApp.controller('SearchCtrl', function($http,$scope) {
   };
 
 
-  $scope.scToSimilar = function scToSimilar(user) {
-    $scope.getMBID(user.id,user.username,user.permalink_url);
-  };
-  //Gets MBID of similar artists using last.fm api
-  //@mbid - MBID of artist
-  //@return - array of mbid
-  $scope.getSimilarArtists = function getSimilarArtists(mbid) {
-    $http.get('http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&mbid='+mbid+'&api_key=61984ea34c8e9138ca95d73f036b4e20&format=json')
-        .success(function(data, status, headers, config){
-          var mbidarray=[];
-          for(var i=0;i<data.similarartists.artist.length && i<6;i++) {
-            mbidarray.push(data.similarartists.artist[i].mbid);
-            $scope.getSCIDbyMBID(data.similarartists.artist[i].mbid);
-          }
-          console.log(mbidarray);
-          //TODO
-          console.log($scope.getSCIDbyMBID(mbidarray[0]));
-          return mbidarray;
-        })
-        .error(function(data){
 
-        });
-  };
-
-  //Gets SC user by MBID
-  //@mbid - MBID of artist
-  //@return - SC user
-  $scope.getSCIDbyMBID = function getSCIDbyMBID(mbid) {
-    $http.get('http://musicbrainz.org/ws/2/artist/'+mbid+'?inc=url-rels&fmt=json')
-        .success(function(data) {
-          for (var i = 0; i < data.relations.length; i++) {
-            if (data.relations[i]["type-id"] == "89e4a949-0976-440d-bda1-5f772c1e5710") {
-              var sclink = data.relations[i].url.resource;
-              SC.get('/resolve', { url:sclink },function(user) {
-                console.log(user.username);
-                //TODO
-                SC.get('/users/'+user.id+'/tracks',{sharing: 'public'},function(tracks) {
-                  var track = tracks[(Math.floor(Math.random()*tracks.length))];
-                  var unsuitable;
-                  for(var i=0;i<$scope.queue.length;i++) {
-                    if (track.id == $scope.queue[i].id) {
-                      unsuitable = 1;
-                      console.log(track.id + " identical to " + $scope.queue[i].id);
-                    }
-                  }
-                  if(track.duration < 66000 || track.duration > 1000000) {
-                    unsuitable = 1
-                  }
-                  if(unsuitable!=1){
-                    addToQueue(track);
-                  }
-
-                });
-                return user;
-              });
-            }
-          }
-        })
-        .error(function(data){
-
-        });
-  };
-
-  //Gets MBID of sc user acount
-  //May fail when SC username differs too much from artist name
-  //Will fail if there is no SC relation registered on MB
-  //@scid - soundcloud user id
-  //@username - soundcloud username
-  //@permalink_url - soundcloud permalink url
-  //@return : mbid or "failed"
-  $scope.getMBID = function getMBID(scid,username,permalink_url) {
-    $http.get('http://search.musicbrainz.org/ws/2/artist/?query='+username+'&fmt=json')
-        .success(function(data, status, headers, config){
-          console.log(data);
-          for(var i=0; i < data["artist-list"].artist.length && i < 5; i++) {
-            var id = data["artist-list"].artist[i].id;
-            $scope.checkMBID(id,permalink_url);
-          }
-          return "failed";
-        })
-        .error(function(data, status, headers, config){
-          console.log("Error retrieving MBID");
-          console.log(data);
-          return "failed";
-        });
-  };
-
-  //Checks MBID belongs to SC user by retrieving relations and comparing sc url
-  //@id - MBID
-  //@permalink_url - Soundcloud permalink_url
-  //@return : true if sc url matches mb sc url
-  $scope.checkMBID = function(id,permalink_url){
-    $http.get('http://musicbrainz.org/ws/2/artist/'+id+'?inc=url-rels&fmt=json')
-        .success(function(data) {
-          for(var i=0;i < data.relations.length;i++) {
-            if(data.relations[i]["type-id"]=="89e4a949-0976-440d-bda1-5f772c1e5710") {
-              var sclink = permalink_url.replace("https://","");
-              sclink = sclink.replace("http://","");
-              var mblink = data.relations[i].url.resource.replace("https://","");
-              mblink = mblink.replace("http://","");
-              console.log(data.relations[i].url.resource);
-              if(mblink == sclink) {
-                console.log(id);
-                //TODO
-                $scope.getSimilarArtists(id);
-                return "true";
-              }
-            }
-          }
-        });
-  };
 
   $scope.addRelatedTrack = function addRelatedTrack(track,number,recursion) {
     $http.get('https://api.soundcloud.com/tracks/'+track.id+'/related?client_id=b4fe049a798114e6ab42ba20a2738ac9')
@@ -467,11 +346,11 @@ myApp.controller('SearchCtrl', function($http,$scope) {
           var tempnumber=number;
           for(var i=0;i<data.length&&i<tempnumber;i++) {
             var unsuitable = 0;
-            for(var q=0;q<$scope.queue.length;q++) {
-              if (data[i].id == $scope.queue[q].id) {
+            for(var q=0;q<Queue.length;q++) {
+              if (data[i].id == Queue[q].id) {
                 unsuitable = 1;
                 tempnumber++;
-                console.log(data[i].id + " identical to " + $scope.queue[q].id);
+                console.log(data[i].id + " identical to " + Queue[q].id);
               }
             }
             if( unsuitable!=1 &&
@@ -501,7 +380,7 @@ myApp.controller('SearchCtrl', function($http,$scope) {
   };
 
   $scope.addAutoDjTrack = function addAutoDjTrack(bpmrange,tagamount,depth){
-    var lasttrack = $scope.queue[$scope.queue.length-1];
+    var lasttrack = Queue[Queue.length-1];
     console.log("lasttrack"+lasttrack);
     console.log(lasttrack);
     var filter={};
@@ -528,10 +407,10 @@ myApp.controller('SearchCtrl', function($http,$scope) {
       var unsuitable;
       while(tracks.length>0) {
         var track=tracks.shift();
-        for(var i=0;i<$scope.queue.length;i++){
-          if(track.id==$scope.queue[i].id) {
+        for(var i=0;i<Queue.length;i++){
+          if(track.id==Queue[i].id) {
             unsuitable = 1;
-            console.log(track.id+" identical to "+$scope.queue[i].id);
+            console.log(track.id+" identical to "+Queue[i].id);
           }
           if(track.playback_count < 100) {
             unsuitable = 1;
@@ -577,117 +456,131 @@ myApp.controller('SearchCtrl', function($http,$scope) {
       }).appendTo('#visualizer');
     }
   };
-});
-
-myApp.controller('UserCtrl', function($scope, $routeParams) {
-  console.log("UserCtrl triggered");
-  $scope.routeParams = $routeParams;
-  SC.get('/users/'+$scope.routeParams.id,{},function(user){
-    $scope.user = user;
-    console.log(user);
-    SC.get('/users/'+$scope.user.id+'/tracks',{sharing: 'public'},function(tracks) {
-      $scope.usertracks = tracks;
-      $scope.$apply();
-    });
-    $scope.avatarclass="image-anim";
-  });
-  $scope.random = function() {
-    return 0.5 - Math.random();
-  }
-});
-
-myApp.controller('TrackPageCtrl', function($scope, $routeParams) {
-  console.log("TrackPageCtrl triggered");
-  $scope.routeParams = $routeParams;
-  SC.get('/tracks/'+$scope.routeParams.id,{},function(trackpage){
-    $scope.trackpage = trackpage;
-    console.log(trackpage);
-    $scope.$apply();
-  });
-  $scope.menuOptions = [
-    ['Buy', function ($itemScope) {
-      $scope.player.gold -= $itemScope.item.cost;
-    }],
-    null,
-    ['Sell', function ($itemScope) {
-      $scope.player.gold += $itemScope.item.cost;
-    }]
-  ];
-});
-
-myApp.controller('AutoDJCtrl', function($scope) {
-  console.log("AutoDJCtrl triggered");
-  $scope.number = 3;
-});
-
-myApp.filter("sanitize", ['$sce', function($sce) {
-  return function(htmlCode){
-    return $sce.trustAsHtml(htmlCode);
-  }
-}]);
-
-myApp.directive('ngContextMenu', function ($parse) {
-  var renderContextMenu = function ($scope, event, options) {
-    if (!$) { var $ = angular.element; }
-    $(event.target).addClass('context');
-    var $contextMenu = $('<div>');
-    $contextMenu.addClass('dropdown clearfix');
-    var $ul = $('<ul>');
-    $ul.addClass('dropdown-menu');
-    $ul.attr({ 'role': 'menu' });
-    $ul.css({
-      display: 'block',
-      position: 'absolute',
-      left: event.pageX + 'px',
-      top: event.pageY + 'px'
-    });
-    angular.forEach(options, function (item, i) {
-      var $li = $('<li>');
-      if (item === null) {
-        $li.addClass('divider');
-      } else {
-        $a = $('<a>');
-        $a.attr({ tabindex: '-1', href: '#' });
-        $a.text(item[0]);
-        $li.append($a);
-        $li.on('click', function () {
-          $scope.$apply(function() {
-            item[1].call($scope, $scope);
-          });
-        });
-      }
-      $ul.append($li);
-    });
-    $contextMenu.append($ul);
-    $contextMenu.css({
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      zIndex: 9999
-    });
-    $(document).find('body').append($contextMenu);
-    $contextMenu.on("click", function (e) {
-      $(event.target).removeClass('context');
-      $contextMenu.remove();
-    }).on('contextmenu', function (event) {
-      $(event.target).removeClass('context');
-      event.preventDefault();
-      $contextMenu.remove();
-    });
-  };
-  return function ($scope, element, attrs) {
-    element.on('contextmenu', function (event) {
-      $scope.$apply(function () {
-        event.preventDefault();
-        var options = $scope.$eval(attrs.ngContextMenu);
-        if (options instanceof Array) {
-          renderContextMenu($scope, event, options);
-        } else {
-          throw '"' + attrs.ngContextMenu + '" not an array';
+})
+    .factory('Queue', function () {
+        var queue = [{}];
+        return queue;
+        //return {
+        //    getQueue: function () {
+        //        return queue;
+        //    },
+        //    setQueue: function(newQueue) {
+        //        queue=newQueue;
+        //    },
+        //    pushQueue: function(track) {
+        //        queue.push(track);
+        //    },
+        //    shiftQueue: function() {
+        //        return queue.shift();
+        //    },
+        //    setCurrentCode: function (currentCode,id) {
+        //        questions[id].currentcode = currentCode;
+        //    }
+        //};
+    })
+    .factory('Room', ['$http','$rootScope',function($http, $rootScope) {
+        var room_id;
+        var playlist = [{}];
+        function setRoom(id) {
+            room_id=id;
+            updatePlaylist();
+            console.log(room_id);
         }
-      });
+        function getRoom() {
+            return room_id;
+        }
+        function getPlaylist() {
+            return playlist;
+        }
+        function updatePlaylist() {
+            $http.get('http://localhost:8080/api/rooms/'+room_id)
+                .then(function(response){console.log(response);
+                    playlist = response.data.playlist;
+                $rootScope.$emit('playlist:update');
+                console.log(playlist);
+                });
+        }
+
+        return {
+            setRoom : setRoom,
+            getRoom : getRoom,
+            getPlaylist : getPlaylist,
+            updatePlaylist : updatePlaylist
+        }
+    }])
+    .factory('socket', function (socketFactory) {
+        var io_socket = io();
+        var socket = socketFactory(io_socket);
+        socket.forward('message');
+        return socket;
     });
-  };
-});
+
+
+
+
+
+//myApp.directive('ngContextMenu', function ($parse) {
+//  var renderContextMenu = function ($scope, event, options) {
+//    if (!$) { var $ = angular.element; }
+//    $(event.target).addClass('context');
+//    var $contextMenu = $('<div>');
+//    $contextMenu.addClass('dropdown clearfix');
+//    var $ul = $('<ul>');
+//    $ul.addClass('dropdown-menu');
+//    $ul.attr({ 'role': 'menu' });
+//    $ul.css({
+//      display: 'block',
+//      position: 'absolute',
+//      left: event.pageX + 'px',
+//      top: event.pageY + 'px'
+//    });
+//    angular.forEach(options, function (item, i) {
+//      var $li = $('<li>');
+//      if (item === null) {
+//        $li.addClass('divider');
+//      } else {
+//        $a = $('<a>');
+//        $a.attr({ tabindex: '-1', href: '#' });
+//        $a.text(item[0]);
+//        $li.append($a);
+//        $li.on('click', function () {
+//          $scope.$apply(function() {
+//            item[1].call($scope, $scope);
+//          });
+//        });
+//      }
+//      $ul.append($li);
+//    });
+//    $contextMenu.append($ul);
+//    $contextMenu.css({
+//      width: '100%',
+//      height: '100%',
+//      position: 'absolute',
+//      top: 0,
+//      left: 0,
+//      zIndex: 9999
+//    });
+//    $(document).find('body').append($contextMenu);
+//    $contextMenu.on("click", function (e) {
+//      $(event.target).removeClass('context');
+//      $contextMenu.remove();
+//    }).on('contextmenu', function (event) {
+//      $(event.target).removeClass('context');
+//      event.preventDefault();
+//      $contextMenu.remove();
+//    });
+//  };
+//  return function ($scope, element, attrs) {
+//    element.on('contextmenu', function (event) {
+//      $scope.$apply(function () {
+//        event.preventDefault();
+//        var options = $scope.$eval(attrs.ngContextMenu);
+//        if (options instanceof Array) {
+//          renderContextMenu($scope, event, options);
+//        } else {
+//          throw '"' + attrs.ngContextMenu + '" not an array';
+//        }
+//      });
+//    });
+//  };
+//});

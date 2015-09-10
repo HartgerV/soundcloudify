@@ -33,7 +33,7 @@
 
   </script>
 </head>
-<body ng-app="myApp" ng-controller="SearchCtrl" >
+<body ng-app="myApp" ng-cloak ng-controller="SearchCtrl" >
 <!-- NAVBAR TOP -->
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container">
@@ -75,7 +75,7 @@
       <li><a href="#/playing"><i class="glyphicon glyphicon-music"></i> Now playing</a></li>
       <li><a href="#/history" ><i class="glyphicon glyphicon-paperclip"></i> History</a></li>
       <li><a href="#/visualize" ><i class="glyphicon glyphicon-stats"></i> Visualizer</a></li>
-      <li><a href="#" ><i class="glyphicon glyphicon-cloud"></i> Rooms</a></li>
+      <li><a href="#/rooms" ><i class="glyphicon glyphicon-cloud"></i> Rooms</a></li>
       <li><a href="#/autodj" ><i class="glyphicon glyphicon-headphones"></i> Auto-dj</a></li>
     </ul>
     <div class="hidden-xs" id="sidebarqueue" data-drop="true" ng-model='queue' jqyoui-droppable="{multiple:true, stack:true}">
@@ -84,7 +84,7 @@
       </div>
       <div id="sortablediv">
         <table class="table"   ng-animate=" 'animate' " >
-          <tbody ui-sortable ng-model="queue">
+          <tbody ui-sortable ng-model="Queue">
           <tr ng-repeat="track in queue track by $index"><td><img src='{{track.artwork_url.replace("large","tiny")}}'></td><td>{{track.title}}</td></tr>
           </tbody>
         </table>
@@ -105,7 +105,7 @@
       <li><a href="#/playing"><i class="glyphicon glyphicon-music"></i></a></li>
       <li><a href="#/history" ><i class="glyphicon glyphicon-paperclip"></i></a></li>
       <li><a href="#/visualize" ><i class="glyphicon glyphicon-stats"></i></a></li>
-      <li><a href="#" ><i class="glyphicon glyphicon-cloud"></i></a></li>
+      <li><a href="#/rooms" ><i class="glyphicon glyphicon-cloud"></i></a></li>
       <li><a href="#/autodj" ><i class="glyphicon glyphicon-headphones"></i></a></li>
       <li><a href="#/control"><i class="glyphicon glyphicon-play"></i></a></li>
       <li><a href="#/queue"><i class="glyphicon glyphicon-list"></i></a></li>
@@ -130,7 +130,7 @@
   <div class="pull-left visible-xs control" style="position:initial;font-size:0.8em; overflow: hidden; white-space: nowrap;" id="control" >
         <span ng-click="playPrevious()" class="glyphicon glyphicon-fast-backward"></span>
         <span id="pauseunpause" ng-click="pauseUnpause()" class="glyphicon glyphicon-play pauseunpause"></span>
-        <span  ng-click="playNext()" class="glyphicon glyphicon-fast-forward"></span>
+        <span id="androidPlayNext" ng-click="playNext()" class="glyphicon glyphicon-fast-forward"></span>
   </div>
   <div>
     <div class="container" id="seekbarwrap">
@@ -160,6 +160,7 @@
   <!--<script src="bower_components/bootstrap/js/popover.js"></script>-->
   <!--<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>-->
   <script src="bower_components/angular/angular.js"></script>
+<script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-touch.min.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="bower_components/angular-animate/angular-animate.js"></script>
@@ -168,8 +169,16 @@
   <script src="bower_components/angular-ui-sortable/sortable.js"></script>
   <script src="bower_components/angular-filter/dist/angular-filter.js"></script>
   <script src="bower_components/angular-dragdrop/src/angular-dragdrop.js"></script>
-
+<script src="bower_components/angular-socket-io/socket.js"></script>
   <script src="app.js"></script>
+  <script src="controllers/room.js"></script>
+<script src="controllers/rooms.js"></script>
+<script src="controllers/autodj.js"></script>
+<script src="controllers/user.js"></script>
+<script src="controllers/trackpage.js"></script>
+<script src="controllers/srch.js"></script>
+<script src="components/filters.js"></script>
+
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>

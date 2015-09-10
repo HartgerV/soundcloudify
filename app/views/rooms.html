@@ -1,0 +1,15 @@
+<h1>Rooms</h1>
+<div class="well" id=""  >
+    <input type="text" ng-model="newroomname"><button class="" ng-click="createRoom();">Create room</button>
+    <table  class="searchlist table table-striped sortable">
+        <tbody ui-sortable ng-model="rooms">
+        <tr ng-animate=" 'animate' " ng-repeat="room in rooms track by $index">
+            <td></td>
+            <td></td>
+            <td><a href="#/room/{{room._id}}">{{room.name}}</a></td><td>{{room.listeners}}</td>
+            <td><span class="glyphicon glyphicon-remove push-right" ng-click="removeQueueTrack($index)"></span></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
